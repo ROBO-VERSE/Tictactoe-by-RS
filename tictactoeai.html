@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe with AI~~(RS)</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: skyblue;
+    }
+    .level-select {
+      margin-bottom: 10px;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #ffffff10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .cell:hover {
+      background: #ffffff20;
+    }
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1 align="center">Tic Tac Toe - AI Challenge<br>Created by<br>ROBO SAPIENS</h1>
+  <div class="level-select">
+    Level:
+    <select id="level">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
+  <div class="stats">
+    <div>Win Streak: <span id="winStreak">0</span></div>
+    <div>Unbeaten Streak: <span id="unbeatenStreak">0</span></div>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="status" id="status"></div>  <script>
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    const levelEl = document.getElementById("level");
+    const winStreakEl = document.getElementById("winStreak");
+    const unbeatenStreakEl = document.getElementById("unbeatenStreak");
+
+    let board = Array(9).fill(null);
+    let currentPlayer = "X";
+    let gameActive = true;
+    let winStreak = 0;
+    let unbeatenStreak = 0;
+
+    const winCombos = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      board.forEach((val, idx) => {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.textContent = val || "";
+        cell.addEventListener("click", () => makeMove(idx));
+        boardEl.appendChild(cell);
+      });
+    }
+
+    function makeMove(idx) {
+      if (!gameActive || board[idx]) return;
+      board[idx] = currentPlayer;
+      renderBoard();
+      if (checkWin(currentPlayer)) {
+        statusEl.textContent = `${currentPlayer} wins!`;
+        updateStreaks(currentPlayer === "X");
+        gameActive = false;
+        setTimeout(resetGame, 1500);
+      } else if (!board.includes(null)) {
+        statusEl.textContent = "Draw!";
+        updateStreaks(false, true);
+        gameActive = false;
+        setTimeout(resetGame, 1500);
+      } else {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        if (currentPlayer === "O") aiMove();
+      }
+    }
+
+    function aiMove() {
+      const level = levelEl.value;
+      let move;
+      if (level === "easy") move = getRandomMove();
+      else if (level === "medium") move = getMediumMove();
+      else move = getBestMove("O");
+      makeMove(move);
+    }
+
+    function getRandomMove() {
+      const empty = board.map((v, i) => v ? null : i).filter(v => v !== null);
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    function getMediumMove() {
+      const win = winCombos.find(c => {
+        const [a,b,c1] = c;
+        const line = [board[a], board[b], board[c1]];
+        return line.filter(v => v === "O").length === 2 && line.includes(null);
+      });
+      if (win) return win.find(i => board[i] === null);
+
+      const block = winCombos.find(c => {
+        const [a,b,c1] = c;
+        const line = [board[a], board[b], board[c1]];
+        return line.filter(v => v === "X").length === 2 && line.includes(null);
+      });
+      if (block) return block.find(i => board[i] === null);
+
+      return getRandomMove();
+    }
+
+    function getBestMove(player) {
+      let bestScore = -Infinity;
+      let move;
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === null) {
+          board[i] = player;
+          let score = minimax(board, 0, false);
+          board[i] = null;
+          if (score > bestScore) {
+            bestScore = score;
+            move = i;
+          }
+        }
+      }
+      return move;
+    }
+
+    function minimax(newBoard, depth, isMax) {
+      if (checkWin("O")) return 10 - depth;
+      if (checkWin("X")) return depth - 10;
+      if (!newBoard.includes(null)) return 0;
+
+      if (isMax) {
+        let best = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (newBoard[i] === null) {
+            newBoard[i] = "O";
+            best = Math.max(best, minimax(newBoard, depth + 1, false));
+            newBoard[i] = null;
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (newBoard[i] === null) {
+            newBoard[i] = "X";
+            best = Math.min(best, minimax(newBoard, depth + 1, true));
+            newBoard[i] = null;
+          }
+        }
+        return best;
+      }
+    }
+
+    function checkWin(player) {
+      return winCombos.some(c => c.every(i => board[i] === player));
+    }
+
+    function updateStreaks(playerWon, draw = false) {
+      if (playerWon) {
+        winStreak++;
+        unbeatenStreak++;
+      } else if (draw) {
+        unbeatenStreak++;
+        winStreak = 0;
+      } else {
+        winStreak = 0;
+        unbeatenStreak = 0;
+      }
+      winStreakEl.textContent = winStreak;
+      unbeatenStreakEl.textContent = unbeatenStreak;
+    }
+
+    function resetGame() {
+      board = Array(9).fill(null);
+      currentPlayer = "X";
+      gameActive = true;
+      statusEl.textContent = "";
+      renderBoard();
+    }
+
+    renderBoard();
+  </script></body>
+        </html>
