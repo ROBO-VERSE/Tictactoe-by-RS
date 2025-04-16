@@ -19,7 +19,7 @@ body {
 
 h1 {
   margin-bottom: 1rem;
-  color: skyblue;
+  font-color: skyblue;
 }
 
 #board {
