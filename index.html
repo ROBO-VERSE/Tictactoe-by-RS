@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Tic-Tac-Toe</title>
+  <link rel="stylesheet" href="style.css">
+</head><body>
+  <div class="header">
+    <h1>Super Tic-Tac-Toe</h1>
+    <div class="theme-toggle">
+      <label for="theme">Dark Mode:</label>
+      <input type="checkbox" id="theme">
+    </div>
+    <div class="language-select">
+      <label for="language">Language:</label>
+      <select id="language">
+        <option value="en">English</option>
+        <option value="bn">বাংলা</option>
+        <option value="es">Español</option>
+      </select>
+    </div>
+  </div>  <div class="settings">
+    <input type="text" id="player1" placeholder="Player 1 Name">
+    <input type="text" id="player2" placeholder="Player 2 Name">
+    <select id="mode">
+      <option value="2p">2 Player</option>
+      <option value="easy">AI Easy</option>
+      <option value="hard">AI Hard</option>
+      <option value="secret">Secret Mode</option>
+    </select>
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="toggleMusic()">Music On/Off</button>
+  </div>  <div class="game-info">
+    <p id="turn"></p>
+    <p id="timer"></p>
+    <div id="scoreboard"></div>
+    <div id="history"></div>
+  </div>  <div id="board" class="board"></div>  <div class="controls">
+    <button onclick="resetBoard()">Reset Board</button>
+    <button onclick="resetScore()">Reset Score</button>
+    <button onclick="toggleFullScreen()">Fullscreen</button>
+  </div>  <div class="footer">
+    <button onclick="openFeedback()">Feedback</button>
+    <button onclick="shareGame()">Share Game</button>
+    <button onclick="toggleThemeMode('horror')">Horror Mode</button>
+    <button onclick="toggleThemeMode('cute')">Cute Mode</button>
+    <button onclick="toggleThemeMode('meme')">Meme Mode</button>
+    <button onclick="openThemeEditor()">Theme Editor</button>
+  </div>  <div id="confetti"></div>  <!-- Feedback Modal -->  <div id="feedbackModal" class="modal hidden">
+    <textarea placeholder="Your feedback..."></textarea>
+    <button onclick="submitFeedback()">Submit</button>
+    <button onclick="closeFeedback()">Close</button>
+  </div>  <!-- Audio -->  <audio id="bgm" loop>
+    <source src="assets/music.mp3" type="audio/mpeg">
+  </audio>  <script src="script.js"></script></body></html>
